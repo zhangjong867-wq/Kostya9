@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Архив Великих Умов: Полная версия</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Roboto+Mono:wght@400;700&display=swap');
+
+        :root {
+            --paper: #f4f1ea;
+            --ink: #1a1a1a;
+            --accent: #b45309;
+        }
+
+        body {
+            background-color: var(--paper);
+            color: var(--ink);
+            font-family: 'Playfair Display', serif;
+            scroll-behavior: smooth;
+        }
+
+        .blueprint-bg {
+            background-image: radial-gradient(rgba(0,0,0,0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        .nav-sticky {
+            background: rgba(244, 241, 234, 0.95);
+            backdrop-filter: blur(5px);
+            border-bottom: 2px solid var(--ink);
+        }
+
+        .lab-container {
+            background: white;
+            border: 3px solid var(--ink);
+            box-shadow: 10px 10px 0px var(--ink);
+        }
+
+        .particle {
+            position: absolute;
+            pointer-events: none;
+            border-radius: 50%;
+            background: #4ade80;
+        }
+
+        @keyframes particle-out {
+            to { transform: translate(var(--x), var(--y)); opacity: 0; }
+        }
+
+        .spinner-element {
+            transition: transform 0.1s linear;
+        }
+
+        .scientist-card {
+            background: white;
+            border: 1px solid rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .scientist-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+        }
+    </style>
+</head>
+<body class="blueprint-bg">
+
+    <!-- Навигация -->
+    <nav class="fixed top-0 left-0 right-0 z-50 nav-sticky">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="font-bold text-xl uppercase tracking-widest">Архив Умов</div>
+            <div class="flex space-x-6 font-mono text-[10px] sm:text-xs font-bold uppercase">
+                <a href="#lab" class="hover:text-amber-700">Лаборатория</a>
+                <a href="#scientists" class="hover:text-amber-700">Ученые</a>
+                <a href="#quiz" class="hover:text-amber-700">Экзамен</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <header class="pt-32 pb-16 text-center px-4">
+        <h1 class="text-5xl md:text-7xl font-bold italic mb-4">Хроники Познания</h1>
+        <p class="max-w-2xl mx-auto opacity-70">Интерактивная энциклопедия величайших открытий человечества.</p>
+    </header>
+
+    <!-- Лаборатория -->
+    <section id="lab" class="max-w-6xl mx-auto px-6 py-12">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <!-- Меню опытов -->
+            <div class="space-y-2">
+                <button onclick="switchLab('newton')" id="btn-newton" class="lab-nav-btn w-full p-4 text-left border-l-4 border-black bg-white font-bold text-xs uppercase">01. Гравитация</button>
+                <button onclick="switchLab('archimedes')" id="btn-archimedes" class="lab-nav-btn w-full p-4 text-left border-l-4 border-transparent hover:bg-white text-xs uppercase">02. Архимед</button>
+                <button onclick="switchLab('tesla')" id="btn-tesla" class="lab-nav-btn w-full p-4 text-left border-l-4 border-transparent hover:bg-white text-xs uppercase">03. Тесла</button>
+                <button onclick="switchLab('curie')" id="btn-curie" class="lab-nav-btn w-full p-4 text-left border-l-4 border-transparent hover:bg-white text-xs uppercase">04. Кюри</button>
+                <button onclick="switchLab('ibnsina')" id="btn-ibnsina" class="lab-nav-btn w-full p-4 text-left border-l-4 border-transparent hover:bg-white text-xs uppercase">05. Оптика</button>
+                <button onclick="switchLab('spinner')" id="btn-spinner" class="lab-nav-btn w-full p-4 text-left border-l-4 border-transparent hover:bg-white text-xs uppercase">06. Спиннер</button>
+            </div>
+
+            <!-- Экран -->
+            <div class="lg:col-span-3 lab-container h-[550px] flex flex-col relative overflow-hidden">
+                <div class="p-3 border-b-2 border-black flex justify-between bg-zinc-50 font-mono text-[10px] uppercase font-bold">
+                    <span id="lab-status">Модуль: Гравитация</span>
+                    <div class="flex space-x-2">
+                        <button onclick="resetCurrentLab()" class="text-amber-700 hover:underline">Сброс</button>
+                    </div>
+                </div>
+
+                <div class="flex-grow relative flex items-center justify-center bg-white" id="main-stage">
+                    
+                    <!-- NEWTON -->
+                    <div id="view-newton" class="lab-view flex flex-col items-center">
+                        <div class="relative w-64 h-64 border-b-2 border-zinc-200">
+                            <div id="apple" class="absolute left-28 top-0 text-5xl transition-all duration-700">🍎</div>
+                            <div class="absolute bottom-0 left-24 text-7xl">👴</div>
+                        </div>
+                        <button onclick="runNewton()" class="mt-8 px-6 py-2 bg-black text-white font-bold text-xs uppercase">Старт</button>
+                    </div>
+
+                    <!-- ARCHIMEDES -->
+                    <div id="view-archimedes" class="lab-view hidden flex flex-col items-center">
+                        <div class="relative w-40 h-64 border-x-4 border-b-4 border-blue-100 bg-blue-50/30">
+                            <div id="water" class="absolute bottom-0 w-full bg-blue-400/60 transition-all duration-1000" style="height: 35%"></div>
+                            <div id="crown" class="absolute -top-10 left-8 text-6xl transition-all duration-1000">👑</div>
+                        </div>
+                        <button onclick="runArchimedes()" class="mt-8 px-6 py-2 bg-blue-600 text-white font-bold text-xs uppercase">Погрузить</button>
+                    </div>
+
+                    <!-- TESLA -->
+                    <div id="view-tesla" class="lab-view hidden flex flex-col items-center w-full">
+                        <svg width="400" height="300" viewBox="0 0 400 300" id="tesla-svg">
+                            <rect x="190" y="100" width="20" height="150" fill="#333" />
+                            <circle cx="200" cy="70" r="45" fill="#555" id="tesla-top" />
+                            <g id="spark-container"></g>
+                        </svg>
+                        <button onmousedown="startTesla()" onmouseup="stopTesla()" class="mt-4 px-6 py-2 bg-indigo-600 text-white font-bold text-xs uppercase">Удерживать</button>
+                    </div>
+
+                    <!-- CURIE -->
+                    <div id="view-curie" class="lab-view hidden flex flex-col items-center w-full h-full bg-zinc-900">
+                        <div id="curie-stage" class="relative w-full h-full flex items-center justify-center">
+                            <div class="w-10 h-10 bg-green-500 rounded-full shadow-[0_0_40px_rgba(74,222,128,0.8)]"></div>
+                        </div>
+                        <button onclick="runCurie()" class="absolute bottom-10 px-6 py-2 border border-green-500 text-green-500 font-bold text-xs uppercase">Распад</button>
+                    </div>
+
+                    <!-- IBN SINA -->
+                    <div id="view-ibnsina" class="lab-view hidden flex flex-col items-center w-full">
+                        <div class="flex items-center space-x-12">
+                            <div class="text-7xl">👁️</div>
+                            <div class="w-48 h-2 bg-zinc-100 relative overflow-hidden">
+                                <div id="sina-ray" class="absolute h-full w-full bg-amber-400 -translate-x-full transition-transform duration-1000"></div>
+                            </div>
+                            <div class="text-6xl">🏺</div>
+                        </div>
+                        <button onclick="runIbnSina()" class="mt-12 px-6 py-2 bg-amber-800 text-white font-bold text-xs uppercase">Луч света</button>
+                    </div>
+
+                    <!-- SPINNER -->
+                    <div id="view-spinner" class="lab-view hidden flex flex-col items-center">
+                        <div id="spinner-body" class="w-48 h-48 flex items-center justify-center text-7xl select-none spinner-element" style="transform: rotate(0deg);">
+                            🎡
+                        </div>
+                        <div class="mt-10 text-center">
+                            <p class="font-mono text-[10px] uppercase mb-2">Скорость: <span id="speed-val">0</span> RPM</p>
+                            <button onclick="boostSpinner()" class="px-8 py-3 bg-red-600 text-white font-bold text-xs uppercase shadow-lg active:scale-95 transition">Ускорить кликом!</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Ученые -->
+    <section id="scientists" class="max-w-7xl mx-auto px-6 py-20">
+        <h2 class="text-4xl font-bold mb-16 italic text-center">Пантеон Ученых</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Азия -->
+            <div class="scientist-card p-6">
+                <span class="text-xs font-bold text-amber-700 uppercase tracking-widest">Азия</span>
+                <h3 class="text-2xl font-bold mt-2">Ибн Сина</h3>
+                <p class="text-sm mt-3 opacity-70">Основоположник современной медицины и оптики. Автор «Канона врачебной науки».</p>
+            </div>
+            <div class="scientist-card p-6">
+                <span class="text-xs font-bold text-amber-700 uppercase tracking-widest">Азия</span>
+                <h3 class="text-2xl font-bold mt-2">Аль-Хорезми</h3>
+                <p class="text-sm mt-3 opacity-70">Великий математик, чье имя дало жизнь термину «Алгоритм», а труд — слову «Алгебра».</p>
+            </div>
+            <div class="scientist-card p-6">
+                <span class="text-xs font-bold text-amber-700 uppercase tracking-widest">Азия</span>
+                <h3 class="text-2xl font-bold mt-2">Ш. Рамануджан</h3>
+                <p class="text-sm mt-3 opacity-70">Индийский математик-самоучка, сделавший невероятный вклад в теорию чисел.</p>
+            </div>
+            <!-- Европа -->
+            <div class="scientist-card p-6">
+                <span class="text-xs font-bold text-blue-700 uppercase tracking-widest">Европа</span>
+                <h3 class="text-2xl font-bold mt-2">Исаак Ньютон</h3>
+                <p class="text-sm mt-3 opacity-70">Человек, который «взвесил Землю» и открыл законы движения и гравитации.</p>
+            </div>
+            <div class="scientist-card p-6">
+                <span class="text-xs font-bold text-blue-700 uppercase tracking-widest">Европа</span>
+                <h3 class="text-2xl font-bold mt-2">Мария Кюри</h3>
+                <p class="text-sm mt-3 opacity-70">Первая женщина Нобелевский лауреат, открывшая радий и полоний.</p>
+            </div>
+            <!-- Америка -->
+            <div class="scientist-card p-6">
+                <span class="text-xs font-bold text-indigo-700 uppercase tracking-widest">Америка</span>
+                <h3 class="text-2xl font-bold mt-2">Никола Тесла</h3>
+                <p class="text-sm mt-3 opacity-70">Визионер, подаривший миру переменный ток и мечтавший о беспроводной энергии.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Тест -->
+    <section id="quiz" class="py-20 bg-zinc-900 text-white px-6">
+        <div class="max-w-2xl mx-auto text-center">
+            <h2 class="text-3xl font-bold mb-10 italic">Аттестация</h2>
+            <div id="quiz-box" class="bg-zinc-800 p-8 rounded border border-zinc-700">
+                <p id="q-text" class="text-xl mb-6">Готовы подтвердить свои знания?</p>
+                <div id="q-options" class="grid gap-4">
+                    <button onclick="startQuiz()" class="bg-white text-black py-4 font-bold uppercase hover:bg-amber-500 transition">Начать экзамен</button>
+                </div>
+            </div>
+
+            <div id="cert-area" class="mt-12 hidden">
+                <div id="certificate" class="bg-white text-black p-10 border-8 border-double border-black">
+                    <h3 class="text-4xl font-serif mb-4">СЕРТИФИКАТ</h3>
+                    <p class="text-sm opacity-60 uppercase mb-8">Магистр Научного Архива</p>
+                    <div class="text-2xl font-bold border-b-2 border-black inline-block px-8 py-2 mb-6">ИССЛЕДОВАТЕЛЬ МИРА</div>
+                    <p class="text-xs max-w-sm mx-auto opacity-70">Подтверждает успешное прохождение всех интерактивных модулей и знание основ физики и истории науки.</p>
+                </div>
+                <button onclick="saveCert()" class="mt-6 w-full py-4 bg-amber-600 font-bold">СКАЧАТЬ (JPG)</button>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Глобальное состояние спиннера
+        let spinVelocity = 0;
+        let spinAngle = 0;
+        let spinActive = false;
+
+        // Переключение вкладок
+        function switchLab(id) {
+            document.querySelectorAll('.lab-view').forEach(v => v.classList.add('hidden'));
+            document.querySelectorAll('.lab-nav-btn').forEach(b => {
+                b.classList.remove('border-black', 'bg-white', 'font-bold');
+                b.classList.add('border-transparent');
+            });
+
+            document.getElementById('view-' + id).classList.remove('hidden');
+            const btn = document.getElementById('btn-' + id);
+            btn.classList.add('border-black', 'bg-white', 'font-bold');
+            btn.classList.remove('border-transparent');
+            document.getElementById('lab-status').innerText = 'Модуль: ' + btn.innerText.split('. ')[1];
+            
+            // Если спиннер - включаем цикл
+            if(id === 'spinner' && !spinActive) {
+                spinActive = true;
+                updateSpinner();
+            }
+        }
+
+        // СБРОС
+        function resetCurrentLab() {
+            // Newton
+            const apple = document.getElementById('apple');
+            apple.style.transform = 'translateY(0)';
+            // Archimedes
+            const crown = document.getElementById('crown');
+            const water = document.getElementById('water');
+            crown.style.transform = 'translateY(0)';
+            water.style.height = '35%';
+            // Ibn Sina
+            document.getElementById('sina-ray').style.transform = 'translateX(-100%)';
+            // Tesla
+            document.getElementById('spark-container').innerHTML = '';
+            document.getElementById('tesla-top').style.fill = '#555';
+            // Spinner
+            spinVelocity = 0;
+            spinAngle = 0;
+            document.getElementById('speed-val').innerText = '0';
+        }
+
+        // ОПЫТЫ
+        function runNewton() {
+            document.getElementById('apple').style.transform = 'translateY(190px)';
+        }
+
+        function runArchimedes() {
+            document.getElementById('crown').style.transform = 'translateY(210px)';
+            setTimeout(() => {
+                document.getElementById('water').style.height = '55%';
+            }, 400);
+        }
+
+        let teslaInterval;
+        function startTesla() {
+            document.getElementById('tesla-top').style.fill = '#facc15';
+            const container = document.getElementById('spark-container');
+            teslaInterval = setInterval(() => {
+                const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                const tx = Math.random() * 400;
+                const ty = Math.random() * 300;
+                p.setAttribute("d", `M200 70 Q${150+Math.random()*100} ${50+Math.random()*100} ${tx} ${ty}`);
+                p.setAttribute("stroke", "#60a5fa");
+                p.setAttribute("stroke-width", "2");
+                p.setAttribute("fill", "none");
+                container.appendChild(p);
+                setTimeout(() => p.remove(), 60);
+            }, 30);
+        }
+        function stopTesla() {
+            clearInterval(teslaInterval);
+            document.getElementById('tesla-top').style.fill = '#555';
+            document.getElementById('spark-container').innerHTML = '';
+        }
+
+        function runCurie() {
+            const stage = document.getElementById('curie-stage');
+            for(let i=0; i<15; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle w-2 h-2';
+                p.style.left = '50%';
+                p.style.top = '50%';
+                const x = (Math.random() - 0.5) * 600;
+                const y = (Math.random() - 0.5) * 600;
+                p.style.setProperty('--x', x + 'px');
+                p.style.setProperty('--y', y + 'px');
+                p.style.animation = 'particle-out 0.8s forwards';
+                stage.appendChild(p);
+                setTimeout(() => p.remove(), 800);
+            }
+        }
+
+        function runIbnSina() {
+            document.getElementById('sina-ray').style.transform = 'translateX(0)';
+        }
+
+        // СПИННЕР ЛОГИКА
+        function boostSpinner() {
+            spinVelocity += 25; // Добавляем скорость
+            if(spinVelocity > 500) spinVelocity = 500; // Лимит
+        }
+
+        function updateSpinner() {
+            if(!spinActive) return;
+            
+            spinAngle += spinVelocity;
+            spinVelocity *= 0.98; // Трение (замедление)
+            
+            if(spinVelocity < 0.1) spinVelocity = 0;
+            
+            document.getElementById('spinner-body').style.transform = `rotate(${spinAngle}deg)`;
+            document.getElementById('speed-val').innerText = Math.round(spinVelocity * 10);
+            
+            requestAnimationFrame(updateSpinner);
+        }
+
+        // QUIZ
+        const questions = [
+            {q: "Кто автор закона вытеснения воды?", a: ["Архимед", "Ньютон"], c: 0},
+            {q: "Какую энергию исследовал Тесла?", a: ["Тепловую", "Переменный ток"], c: 1},
+            {q: "Имя великого медика из Азии?", a: ["Ибн Сина", "Кюри"], c: 0}
+        ];
+        let curQ = 0;
+
+        function startQuiz() {
+            curQ = 0;
+            renderQ();
+        }
+
+        function renderQ() {
+            const data = questions[curQ];
+            document.getElementById('q-text').innerText = data.q;
+            document.getElementById('q-options').innerHTML = data.a.map((opt, i) => `
+                <button onclick="checkAns(${i})" class="p-3 border border-zinc-500 hover:bg-zinc-700 transition">${opt}</button>
+            `).join('');
+        }
+
+        function checkAns(i) {
+            if(i === questions[curQ].c) {
+                curQ++;
+                if(curQ < questions.length) renderQ();
+                else {
+                    document.getElementById('quiz-box').classList.add('hidden');
+                    document.getElementById('cert-area').classList.remove('hidden');
+                }
+            } else {
+                alert("Неверно!");
+            }
+        }
+
+        function saveCert() {
+            html2canvas(document.getElementById('certificate')).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'cert.jpg';
+                link.href = canvas.toDataURL();
+                link.click();
+            });
+        }
+    </script>
+</body>
+</html>
